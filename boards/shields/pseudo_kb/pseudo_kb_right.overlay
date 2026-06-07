@@ -1,17 +1,20 @@
 #include "pseudo_kb.dtsi"
 
 &default_transform {
-    col-offset = <7>;   // right side columns start at 7
+    col-offset = <7>;
 };
 
 &kscan0 {
+    // Reversed vs left overlay so that col7=inner, col8=index, …, col12=outer, col13=thumb_far/enc_push.
+    // This makes the right-half transform (RC(r,7)…RC(r,12)) read inner→outer,
+    // matching the left-half's outer→inner ordering for a mirrored QWERTY layout.
     col-gpios
-        = <&pro_micro 21 GPIO_ACTIVE_HIGH>   // C0 (mirrored)
-        , <&pro_micro 20 GPIO_ACTIVE_HIGH>   // C1
-        , <&pro_micro 19 GPIO_ACTIVE_HIGH>   // C2
-        , <&pro_micro 18 GPIO_ACTIVE_HIGH>   // C3
-        , <&pro_micro 15 GPIO_ACTIVE_HIGH>   // C4
-        , <&pro_micro 14 GPIO_ACTIVE_HIGH>   // C5
-        , <&pro_micro 8  GPIO_ACTIVE_HIGH>   // C6
+        = <&pro_micro 14 GPIO_ACTIVE_HIGH>   // C5 → col 7  (inner / thumb-home)
+        , <&pro_micro 15 GPIO_ACTIVE_HIGH>   // C4 → col 8  (index)
+        , <&pro_micro 18 GPIO_ACTIVE_HIGH>   // C3 → col 9  (middle)
+        , <&pro_micro 19 GPIO_ACTIVE_HIGH>   // C2 → col 10 (ring)
+        , <&pro_micro 20 GPIO_ACTIVE_HIGH>   // C1 → col 11 (pinky)
+        , <&pro_micro 21 GPIO_ACTIVE_HIGH>   // C0 → col 12 (outer)
+        , <&pro_micro 8  GPIO_ACTIVE_HIGH>   // C6 → col 13 (thumb-far / enc-push)
         ;
 };
