@@ -1,0 +1,17 @@
+#include "pseudo_kb.dtsi"
+
+&default_transform {
+    col-offset = <7>;   // right side columns start at 7
+};
+
+&kscan0 {
+    col-gpios
+        = <&pro_micro 21 GPIO_ACTIVE_HIGH>   // C0 (mirrored)
+        , <&pro_micro 20 GPIO_ACTIVE_HIGH>   // C1
+        , <&pro_micro 19 GPIO_ACTIVE_HIGH>   // C2
+        , <&pro_micro 18 GPIO_ACTIVE_HIGH>   // C3
+        , <&pro_micro 15 GPIO_ACTIVE_HIGH>   // C4
+        , <&pro_micro 14 GPIO_ACTIVE_HIGH>   // C5
+        , <&pro_micro 8  GPIO_ACTIVE_HIGH>   // C6
+        ;
+};

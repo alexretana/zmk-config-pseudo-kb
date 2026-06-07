@@ -1,0 +1,15 @@
+file_format: "2"
+id: pseudo_kb
+name: Pseudo KB
+type: shield
+url: https://github.com/yourusername/zmk-config-pseudo-kb
+requires:
+  - pro_micro
+features:
+  - keys
+  - encoder
+  - display
+siblings:
+  - pseudo_kb_left
+  - pseudo_kb_right
+  - pseudo_kb_dongle

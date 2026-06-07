@@ -1,0 +1,359 @@
+meta:
+  engine: 4.1.0
+
+# Define Points
+points:
+  zones:
+    matrix:
+      anchor:
+        shift: [150, -150]
+        rotate: -6
+      columns:
+        outer:
+          key.column_net: C0
+        pinky:
+          key.column_net: C1
+        ring:
+          key.column_net: C2
+          key.origin: [-12, -1]
+          key.stagger: 3
+        middle:
+          key.column_net: C3
+          key.stagger: 3
+        index:
+          key.column_net: C4
+          key.stagger: -3
+        inner:
+          key.column_net: C5
+          key.stagger: -3
+          rows.utils.skip: true
+      rows:
+        utils:
+          row_net: R0
+        bottom:
+          row_net: R1
+        home:
+          row_net: R2
+        top:
+          row_net: R3
+
+    thumbfan:
+      anchor:
+        ref: matrix_inner_utils
+      columns:
+        home:
+          key.column_net: C5
+        far:
+          key.column_net: C6
+          key.spread: 20
+          key.splay: -7
+          key.origin: [-11.75, -6]
+      rows:
+        lower:
+          row_net: R0
+
+    rotary_knob:
+      anchor:
+        ref: matrix_inner_bottom
+        orient: 11
+        shift: [32, 2]
+      columns:
+        knob_col:
+      rows:
+        knob_row:
+
+    screws:
+      anchor:
+        ref: matrix_middle_home
+      key:
+        tags: [screw]
+        width: 1
+        height: 1
+      columns:
+        top_left:
+          key.shift: [-66.5, 25]
+        top_right:
+          key.shift: [46, 50.5]
+        bottom_left:
+          key.shift: [-104, -58]
+        bottom_right:
+          key.shift: [23.5, -28]
+        center:
+          key.shift: [-66.75, -9.75]
+
+    reset:
+      anchor:
+        ref: matrix_inner_top
+        orient: 11
+        shift: [2, 20] 
+      key:
+        tags: [reset_hole, reset]
+        width: 1
+        height: 1
+      columns:
+        hole:
+      rows:
+        hole:
+
+  rotate: -5
+  # mirror:
+  #   ref: matrix_pinky_home
+  #   distance: 260
+
+# Define Outlines
+outlines:
+  _board:
+    # uncomment to see how keys align to outline
+    # - what: rectangle
+    #   where: true         
+    #   size: [18, 18] 
+    #   bound: true
+    - what: polygon
+      operation: stack
+      points:
+        - ref: matrix_outer_top      
+          shift: [-13, 15]      
+        - ref: matrix_inner_top     
+          shift: [30, 42]
+        - orient: 11
+          shift: [0, -85]
+        - ref: thumbfan_far_lower
+          shift: [11, -12]
+        - ref: matrix_outer_bottom   
+          shift: [-13, -37]
+    # - what: polygon
+    #   operation: stack
+    #   points:
+    #     - ref: mirror_matrix_outer_top      
+    #       shift: [-13, 15]       
+    #     - ref: mirror_matrix_inner_top     
+    #       shift: [30, 42]
+    #     - orient: 11
+    #       shift: [0, -85]
+    #     - ref: mirror_thumbfan_far_lower
+    #       shift: [11, -12]
+    #     - ref: mirror_matrix_outer_bottom   
+    #       shift: [-13, -37]
+  _screw_holes:
+    - what: circle
+      where: screw
+      radius: 1.2
+      asym: both
+  _screw_holes_thickness:
+    - what: circle
+      where: screw
+      radius: 2.2
+      asym: both
+  _reset_hole:
+    - what: circle
+      where: reset_hole
+      radius: 2.2
+      asym: both  
+  board_with_holes:
+    - what: outline
+      name: _board
+    - what: outline
+      name: _screw_holes
+      operation: subtract
+    - what: outline
+      name: _reset_hole
+      operation: subtract
+  board_with_holes_thickness:
+    - what: outline
+      name: _board
+    - what: outline
+      name: _screw_holes_thickness
+      operation: subtract
+    - what: outline
+      name: _reset_hole
+      operation: subtract
+  _switch_cutouts:
+    - what: rectangle
+      where: /^matrix_|^thumbfan_|^rotary_knob_/
+      size: [14, 14]              # Choc v2 plate cutout ~14mm x 14mm
+      asym: both
+  _screen_opening:
+    - what: rectangle
+      where:           
+        ref: matrix_inner_top
+        orient: 11                   # positions the MCU near the inner column, top row
+        shift: [24, 5.5]
+      size: [27, 102]   
+  switch_plate:
+    - what: outline
+      name: _board                 # your full board shape
+    - what: outline
+      name: _switch_cutouts
+      operation: subtract
+    - what: outline
+      name: _screw_holes
+      operation: subtract
+    - what: outline
+      name: _screen_opening
+      operation: subtract
+      
+
+# Define cases
+cases:
+  bottom_plate:
+    - what: outline
+      name: board_with_holes
+      extrude: 1.5
+    - what: outline
+      name: board_with_holes_thickness
+      extrude: 4.5
+  switch_plate:
+    - what: outline
+      name: switch_plate
+      extrude: 1.5
+
+pcbs:
+  my_keyboard:
+    template: kicad8                              # KiCad 8 format, required for ceoloide footprints
+
+    outlines:
+      edge:
+        outline: _board                            # your polygon outline becomes the physical board boundary
+        layer: Edge.Cuts                          # KiCad layer that defines where the board gets cut
+
+    footprints:
+
+      # ── KEY SWITCHES ──────────────────────────────────────────
+      switches:
+        what: ceoloide/switch_choc_v1_v2          # Choc v1/v2 combo footprint from ceoloide's library
+        where: /^matrix_|^thumbfan_/              # regex: every matrix and thumbfan point gets a switch
+        asym: source                                # place on source side AND mirrored side
+        params:
+          choc_v2_support: true                   # enables the Choc v2 center pin and pin spacing
+          choc_v1_support: false                  # disables Choc v1 pads since you're only using v2
+          hotswap: true                           # use Kailh hotswap sockets (no soldering switches)
+          reversible: true                        # pads on both sides of PCB — needed for a split where
+                                                  # both halves use the same PCB flipped
+          from: "{{column_net}}"                  # connects one switch pin to the column net
+                                                  # the {{}} template pulls column_net from each point's
+                                                  # metadata (P21 for outer, P20 for pinky, etc.)
+          to: "{{colrow}}"                        # connects the other switch pin to a unique per-key net
+                                                  # colrow is auto-generated by ergogen as zone_column_row
+                                                  # e.g. "matrix_outer_bottom" — this is the junction
+                                                  # between the switch and its diode
+
+      # ── DIODES ────────────────────────────────────────────────
+      # Each key needs a diode for the scanning matrix to work.
+      # Without diodes, pressing multiple keys causes "ghosting" —
+      # phantom keypresses the MCU can't distinguish.
+      diodes:
+        what: ceoloide/diode_tht_sod123                      # SOD-123 / 1N4148 compatible SMD diode footprint
+        where: /^matrix_|^thumbfan_/              # one diode per switch, same filter
+        asym: source
+        params:
+          from: "{{colrow}}"                      # connects to the switch's "to" net — this is the
+                                                  # shared node between the switch and diode
+          to: "{{row_net}}"                       # connects to the row net (P9, P8, P7, P6, or P5)
+                                                  # when the MCU scans: it drives a column HIGH,
+                                                  # and reads which rows go HIGH — that tells it
+                                                  # which key in that column is pressed
+          reversible: true                        # pads on both PCB sides, matching the switch
+          include_tht: true                      # SMD only, no through-hole pads (saves space)
+        adjust:
+          shift: [0, -8.5]                          # moves each diode 5mm below its switch center
+                                                  # so it doesn't overlap the switch footprint
+
+      # ── ROTARY ENCODER ────────────────────────────────────────
+      rotary:
+        what: ceoloide/rotary_encoder_ec11_ec12   # Alps EC11/EC12 encoder footprint
+        where: rotary_knob_knob_col_knob_row      # the specific point name from your rotary_knob zone
+        asym: source
+        params:
+          A: ENC_A                                   # encoder channel A — one of the two rotation signals
+          B: ENC_B                                   # encoder channel B — the other rotation signal
+                                                  # the firmware reads A and B to determine rotation
+                                                  # direction and speed
+          C: GND                                  # encoder common pin, connected to ground
+          encoder_pads_position: 8.254            # pushes encoder pads out to 8.254mm to avoid
+                                                  # overlapping Choc v2 hotswap socket pads
+          S1: R1
+          S2: C6
+          reversible: true
+
+      # ── MICROCONTROLLER (nice!nano) ───────────────────────────
+      mcu:
+        what: ceoloide/mcu_nice_nano              # nice!nano v2 footprint with all 21 GPIO pins
+        where:
+          ref: matrix_inner_top
+          orient: 11                   # positions the MCU near the inner column, top row
+          shift: [24.5, -1]                         # nudge it to fit within your board outline
+                                                  # you'll need to adjust these values to get it
+                                                  # where you want — check the preview
+        asym: source                                # places one on each half
+        params:
+          reversible: true                        # pads on both sides — same PCB, flipped for each half
+          include_traces: true                    # adds pre-routed traces between pads and vias
+                                                  # this saves manual routing work in KiCad
+          show_silk_labels: true                  # prints pin labels on the silkscreen for debugging
+          show_via_labels: true                   # labels the vias so you know which pin is which
+          # Pin-to-net mapping: tells KiCad which MCU pin
+          # connects to which net. This must match the
+          # column_net and row_net values you set in points.
+          P21: C0                                 # column 0 (outer)
+          P20: C1                                 # column 1 (pinky)
+          P19: C2                                 # column 2 (ring)
+          P18: C3                                 # column 3 (middle)
+          P15: C4                                 # column 4 (index)
+          P14: C5                                 # column 5 (inner)
+          P16: R3                                # column 6 (thumb home)
+          P10: R2                                # column 7 (thumb far)
+          P9: R1                           # row 0 (utils)
+          P8: C6                                  # row 1 (bottom)
+          P7: ENC_B                                # row 2 (home)
+          P6: ENC_A                                # row 3 (top)
+          P5: R0                                # row 4 (thumb lower)
+          P4: DISP_MOSI                               # encoder A signal
+          P3: DISP_SCK
+          P0: DISP_CS                           # encoder B signal
+  
+      # ── RESET BUTTON ─────────────────────────────────────────
+      # Lets you put the nice!nano into bootloader mode for flashing.
+      # Double-tap reset to enter UF2 bootloader on the nice!nano.
+      reset:
+        what: ceoloide/reset_switch_tht_top      # low-profile side-mount tactile reset button
+        where: reset                   # adjust to place it next to the nice!nano
+        asym: source
+        params:
+          reversible: true
+          from: GND                               # one side to ground
+          to: RST                                 # other side to the reset pin on the nice!nano
+
+      # # ── BATTERY CONNECTOR ─────────────────────────────────────
+      # # The nice!nano has an onboard LiPo charger.
+      # # This JST connector is where you plug in the battery.
+      # battery:
+      #   what: ceoloide/battery_connector_jst_ph_2 # 2-pin JST PH connector for LiPo battery
+      #   where:
+      #     ref: matrix_inner_top
+      #     orient: 11                   # near the MCU
+      #     shift: [5, 26]                         # below the reset button — adjust as needed
+      #     rotate: 90
+      #   asym: source
+      #   params:
+      #     reversible: true
+      #     BAT_P: BAT_P                            # positive battery terminal net
+      #     BAT_N: GND                              # negative terminal to ground
+
+      # ── MOUNTING HOLES ────────────────────────────────────────
+      mounting_holes:
+        what: ceoloide/mounting_hole_plated              # plated M2 mounting hole footprint
+        where: screw                              # uses the "screw" tag filter from your points
+        asym: source
+
+      display:
+        what: ceoloide/display_nice_view
+        where:
+          ref: matrix_inner_top
+          orient: 11                   # positions the MCU near the inner column, top row
+          shift: [24.5, -5]            # adjust to sit adjacent to the nice!nano
+        asym: source
+        params:
+          reversible: true
+          MOSI: DISP_MOSI                    # SPI data
+          SCK: DISP_SCK                     # SPI clock
+          CS: DISP_CS                      # chip select
