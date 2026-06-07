@@ -1,26 +1,15 @@
 #include "pseudo_kb.dtsi"
 
-// Dongle is the central. It receives key events from both peripheral halves over BLE
-// and processes them through the keymap. No physical kscan or encoder on the dongle.
+// Dongle is the central. It receives matrix events from both peripheral halves over BLE
+// and processes them through the keymap. No physical kscan, no encoder, no display.
+// The matrix transform (from pseudo_kb.dtsi) IS needed to map peripheral events to
+// keymap binding positions.
 
 / {
-    chosen {
-        zmk,kscan = &kscan0;
-        // zmk,matrix-transform is inherited from pseudo_kb.dtsi — the dongle needs it
-        // to map incoming peripheral matrix events to keymap binding positions.
+    kscan0: kscan0 {
+        compatible = "zmk,kscan-mock";
+        columns = <0>;
+        rows = <0>;
+        events = <0>;
     };
 };
-
-// Override kscan0 to a no-op mock so no col-gpios are required on the dongle.
-&kscan0 {
-    compatible = "zmk,kscan-mock";
-    columns = <0>;
-    rows = <0>;
-    events = <0>;
-};
-
-// The encoder node (pro_micro 6 + 7) is inherited from pseudo_kb.dtsi.
-// On the XIAO BLE dongle those pins are pull-up and unconnected so the ec11 driver
-// will never fire rotation events. The sensors node (also inherited) is kept with one
-// entry so keymap sensor-bindings[0] compiles. Peripheral encoder rotation events
-// forwarded via ZMK split BLE require additional split-sensor wiring (future work).

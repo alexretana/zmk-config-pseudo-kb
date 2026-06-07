@@ -1,5 +1,9 @@
 #include <dt-bindings/zmk/matrix_transform.h>
 
+// Shared hardware-independent definitions.
+// GPIO-using nodes (kscan, encoder, sensors) live in the per-half overlays
+// so the dongle (XIAO BLE) never encounters &pro_micro references it can't resolve.
+
 / {
     chosen {
         zmk,kscan = &kscan0;
@@ -35,33 +39,5 @@
             RC(0,0)  RC(0,1)  RC(0,2)  RC(0,3)  RC(0,4)  RC(0,5)  RC(0,6)
             RC(0,7)  RC(0,8)  RC(0,9)  RC(0,10) RC(0,11) RC(0,12) RC(0,13)
         >;
-    };
-
-    kscan0: kscan0 {
-        compatible = "zmk,kscan-gpio-matrix";
-        diode-direction = "col2row";
-        wakeup-source;
-
-        row-gpios
-            = <&pro_micro 5  (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>  // R0 — utils + thumb row (P5)
-            , <&pro_micro 9  (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>  // R1 — bottom row (P9)
-            , <&pro_micro 10 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>  // R2 — home row (P10)
-            , <&pro_micro 16 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>  // R3 — top row (P16)
-            ;
-    };
-};
-
-/ {
-    encoder: encoder {
-        compatible = "alps,ec11";
-        a-gpios = <&pro_micro 6 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  // ENC_A (P6)
-        b-gpios = <&pro_micro 7 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  // ENC_B (P7)
-        steps = <80>;
-    };
-
-    sensors: sensors {
-        compatible = "zmk,keymap-sensors";
-        sensors = <&encoder>;
-        triggers-per-rotation = <20>;
     };
 };

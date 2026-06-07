@@ -4,17 +4,43 @@
     col-offset = <7>;
 };
 
-&kscan0 {
-    // Reversed vs left overlay so that col7=inner, col8=index, …, col12=outer, col13=thumb_far/enc_push.
-    // This makes the right-half transform (RC(r,7)…RC(r,12)) read inner→outer,
-    // matching the left-half's outer→inner ordering for a mirrored QWERTY layout.
-    col-gpios
-        = <&pro_micro 14 GPIO_ACTIVE_HIGH>   // C5 → col 7  (inner / thumb-home)
-        , <&pro_micro 15 GPIO_ACTIVE_HIGH>   // C4 → col 8  (index)
-        , <&pro_micro 18 GPIO_ACTIVE_HIGH>   // C3 → col 9  (middle)
-        , <&pro_micro 19 GPIO_ACTIVE_HIGH>   // C2 → col 10 (ring)
-        , <&pro_micro 20 GPIO_ACTIVE_HIGH>   // C1 → col 11 (pinky)
-        , <&pro_micro 21 GPIO_ACTIVE_HIGH>   // C0 → col 12 (outer)
-        , <&pro_micro 8  GPIO_ACTIVE_HIGH>   // C6 → col 13 (thumb-far / enc-push)
-        ;
+/ {
+    kscan0: kscan0 {
+        compatible = "zmk,kscan-gpio-matrix";
+        diode-direction = "col2row";
+        wakeup-source;
+
+        row-gpios
+            = <&pro_micro 5  (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>  // R0 — utils + thumb row (P5)
+            , <&pro_micro 9  (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>  // R1 — bottom row (P9)
+            , <&pro_micro 10 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>  // R2 — home row (P10)
+            , <&pro_micro 16 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>  // R3 — top row (P16)
+            ;
+
+        // Reversed vs left overlay: C5(inner)→col7, C4→col8, C3→col9, C2→col10, C1→col11,
+        // C0(outer)→col12, C6(thumb-far/enc-push)→col13.
+        // This makes RC(r,7)=inner…RC(r,12)=outer, mirroring the left side.
+        col-gpios
+            = <&pro_micro 14 GPIO_ACTIVE_HIGH>   // C5 → col 7  inner / thumb-home (P14)
+            , <&pro_micro 15 GPIO_ACTIVE_HIGH>   // C4 → col 8  index (P15)
+            , <&pro_micro 18 GPIO_ACTIVE_HIGH>   // C3 → col 9  middle (P18)
+            , <&pro_micro 19 GPIO_ACTIVE_HIGH>   // C2 → col 10 ring (P19)
+            , <&pro_micro 20 GPIO_ACTIVE_HIGH>   // C1 → col 11 pinky (P20)
+            , <&pro_micro 21 GPIO_ACTIVE_HIGH>   // C0 → col 12 outer (P21)
+            , <&pro_micro 8  GPIO_ACTIVE_HIGH>   // C6 → col 13 thumb-far / enc-push (P8)
+            ;
+    };
+
+    encoder: encoder {
+        compatible = "alps,ec11";
+        a-gpios = <&pro_micro 6 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  // ENC_A (P6)
+        b-gpios = <&pro_micro 7 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  // ENC_B (P7)
+        steps = <80>;
+    };
+
+    sensors: sensors {
+        compatible = "zmk,keymap-sensors";
+        sensors = <&encoder>;
+        triggers-per-rotation = <20>;
+    };
 };

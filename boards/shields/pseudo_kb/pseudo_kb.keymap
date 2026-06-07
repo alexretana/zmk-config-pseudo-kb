@@ -11,6 +11,9 @@
 //
 // Left col order (overlay): C0→col0 … C5→col5, C6→col6
 // Right col order (overlay): C5→col7, C4→col8, C3→col9, C2→col10, C1→col11, C0→col12, C6→col13
+//
+// NOTE: sensor-bindings (encoder rotation) are omitted here because the dongle has no
+// sensors node. Add encoder rotation support once ZMK split-sensor forwarding is wired up.
 
 / {
     keymap {
@@ -33,7 +36,6 @@
                 // Right: thumb-home  idx-utils  mid-utils  ring-utils pnky-utils outer-utils thumb-far
                 &mo 2      &kp RALT  &kp RGUI  &trans    &trans    &kp DEL   &kp SPACE
             >;
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>;
         };
 
         lower_layer {
@@ -51,7 +53,6 @@
                 &trans     &trans    &trans    &trans    &trans    &trans    &trans
                 &trans     &trans    &trans    &trans    &trans    &trans    &trans
             >;
-            sensor-bindings = <&inc_dec_kp C_BRI_UP C_BRI_DN>;
         };
 
         raise_layer {
@@ -69,7 +70,6 @@
                 &trans     &trans    &trans    &trans    &trans    &trans    &trans
                 &trans     &trans    &trans    &trans    &trans    &trans    &trans
             >;
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>;
         };
     };
 };

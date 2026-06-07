@@ -1,13 +1,39 @@
 #include "pseudo_kb.dtsi"
 
-&kscan0 {
-    col-gpios
-        = <&pro_micro 21 GPIO_ACTIVE_HIGH>   // C0
-        , <&pro_micro 20 GPIO_ACTIVE_HIGH>   // C1
-        , <&pro_micro 19 GPIO_ACTIVE_HIGH>   // C2
-        , <&pro_micro 18 GPIO_ACTIVE_HIGH>   // C3
-        , <&pro_micro 15 GPIO_ACTIVE_HIGH>   // C4
-        , <&pro_micro 14 GPIO_ACTIVE_HIGH>   // C5
-        , <&pro_micro 8  GPIO_ACTIVE_HIGH>   // C6
-        ;
+/ {
+    kscan0: kscan0 {
+        compatible = "zmk,kscan-gpio-matrix";
+        diode-direction = "col2row";
+        wakeup-source;
+
+        row-gpios
+            = <&pro_micro 5  (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>  // R0 — utils + thumb row (P5)
+            , <&pro_micro 9  (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>  // R1 — bottom row (P9)
+            , <&pro_micro 10 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>  // R2 — home row (P10)
+            , <&pro_micro 16 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>  // R3 — top row (P16)
+            ;
+
+        col-gpios
+            = <&pro_micro 21 GPIO_ACTIVE_HIGH>   // C0 — outer (P21)
+            , <&pro_micro 20 GPIO_ACTIVE_HIGH>   // C1 — pinky (P20)
+            , <&pro_micro 19 GPIO_ACTIVE_HIGH>   // C2 — ring (P19)
+            , <&pro_micro 18 GPIO_ACTIVE_HIGH>   // C3 — middle (P18)
+            , <&pro_micro 15 GPIO_ACTIVE_HIGH>   // C4 — index (P15)
+            , <&pro_micro 14 GPIO_ACTIVE_HIGH>   // C5 — inner / thumb-home (P14)
+            , <&pro_micro 8  GPIO_ACTIVE_HIGH>   // C6 — thumb-far / enc-push (P8)
+            ;
+    };
+
+    encoder: encoder {
+        compatible = "alps,ec11";
+        a-gpios = <&pro_micro 6 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  // ENC_A (P6)
+        b-gpios = <&pro_micro 7 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;  // ENC_B (P7)
+        steps = <80>;
+    };
+
+    sensors: sensors {
+        compatible = "zmk,keymap-sensors";
+        sensors = <&encoder>;
+        triggers-per-rotation = <20>;
+    };
 };
